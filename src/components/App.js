@@ -5,10 +5,12 @@ import { makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    minHeight: "100vh",
-    background: theme.palette.primary.dark,
+    display: "inline-flex",
+    marginTop: "60px",
+    height: "800px",
+    minWidth: "100vw",
     alignItems: "center",
+    justifyContent: "space-evenly",
   },
 }));
 
