@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper, Box, ClickAwayListener } from "@material-ui/core";
-import { useInView } from "react-intersection-observer";
 import { styled } from "@material-ui/core/styles";
 
 const Item = styled(Box)({
@@ -74,9 +73,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Gameboard() {
+  const found = "3px solid red";
+  const hidden = "3px solid blue";
   const classes = useStyles();
   const [markerPosition, setMarkerPosition] = useState({ cordX: 0, cordY: 0 });
   const [markerVisibility, setMarkerVisibility] = useState("hidden");
+  const [butterflyFound, setButterflyFound] = useState(false);
+  const [caneFound, setCaneFound] = useState(false);
+  const [catFound, setCatFound] = useState(false);
+  const [marsFound, setMarsFound] = useState(false);
+  const [pipeWrenchFound, setPipeWrenchFound] = useState(false);
+  const butterfly = useRef();
 
   const placeItemMarker = (e) => {
     const rect = e.target.getBoundingClientRect();
@@ -95,7 +102,6 @@ export default function Gameboard() {
     }
   };
 
-  // const { ref, entry } = useInView({ trackVisibility: true, delay: 100 });
   return (
     <Paper elevation={3} className={classes.gameContainer}>
       <ClickAwayListener onClickAway={handleClickAway}>
@@ -109,6 +115,32 @@ export default function Gameboard() {
           }}
         />
       </ClickAwayListener>
+      <Item
+        ref={butterfly}
+        className={classes.butterfly}
+        style={{ border: butterflyFound ? found : hidden }}
+        id="butterfly"
+      ></Item>
+      <Item
+        className={classes.cane}
+        style={{ border: caneFound ? found : hidden }}
+        id="cane"
+      ></Item>
+      <Item
+        className={classes.cat}
+        style={{ border: catFound ? found : hidden }}
+        id="cat"
+      ></Item>
+      <Item
+        className={classes.mars}
+        style={{ border: marsFound ? found : hidden }}
+        id="mars"
+      ></Item>
+      <Item
+        className={classes.pipeWrench}
+        style={{ border: pipeWrenchFound ? found : hidden }}
+        id="pipe wrench"
+      ></Item>
       <div
         className={classes.marker}
         style={{
@@ -118,11 +150,6 @@ export default function Gameboard() {
         }}
         id="marker"
       ></div>
-      <Item className={classes.butterfly} id="butterfly"></Item>
-      <Item className={classes.cane} id="cane"></Item>
-      <Item className={classes.cat} id="cat"></Item>
-      <Item className={classes.mars} id="mars"></Item>
-      <Item className={classes.pipeWrench} id="pipe wrench"></Item>
     </Paper>
   );
 }
