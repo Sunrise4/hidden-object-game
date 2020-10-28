@@ -3,12 +3,12 @@ import "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: "hidden-object-game-fe969.firebaseapp.com",
-  databaseURL: "https://hidden-object-game-fe969.firebaseio.com",
-  projectId: "hidden-object-game-fe969",
-  storageBucket: "hidden-object-game-fe969.appspot.com",
-  messagingSenderId: "927614987241",
-  appId: "1:927614987241:web:708a1360b26eadcc22b978",
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_DATABASE_URL,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
