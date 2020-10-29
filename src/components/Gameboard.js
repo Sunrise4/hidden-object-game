@@ -1,12 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper, Box, ClickAwayListener } from "@material-ui/core";
 import { styled } from "@material-ui/core/styles";
 
-const Item = styled(Box)({
+let Item = styled(Box)({
   position: "absolute",
-  border: "3px solid red",
   pointerEvents: "none",
 });
 
@@ -73,24 +72,82 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Gameboard() {
+  const [test, setTest] = useState("3px solid purple");
   const found = "3px solid red";
   const hidden = "3px solid blue";
   const classes = useStyles();
   const [markerPosition, setMarkerPosition] = useState({ cordX: 0, cordY: 0 });
-  const [markerVisibility, setMarkerVisibility] = useState("hidden");
+  const [markerVisibility, setMarkerVisibility] = useState("visible");
   const [butterflyFound, setButterflyFound] = useState(false);
   const [caneFound, setCaneFound] = useState(false);
   const [catFound, setCatFound] = useState(false);
   const [marsFound, setMarsFound] = useState(false);
   const [pipeWrenchFound, setPipeWrenchFound] = useState(false);
   const butterfly = useRef();
+  const cane = useRef();
+  const cat = useRef();
+  const mars = useRef();
+  const pipeWrench = useRef();
+  const marker = useRef();
+  const overlaps = (function () {
+    function getPositions(elem) {
+      var width = parseFloat(
+        getComputedStyle(elem, null).width.replace("px", "")
+      );
+      var height = parseFloat(
+        getComputedStyle(elem, null).height.replace("px", "")
+      );
+      return [
+        [elem.offsetLeft, elem.offsetLeft + width],
+        [elem.offsetTop, elem.offsetTop + height],
+      ];
+    }
+
+    function comparePositions(p1, p2) {
+      var r1 = p1[0] < p2[0] ? p1 : p2;
+      var r2 = p1[0] < p2[0] ? p2 : p1;
+      return r1[1] > r2[0] || r1[0] === r2[0];
+    }
+
+    return function (a, b) {
+      var pos1 = getPositions(a),
+        pos2 = getPositions(b);
+      return (
+        comparePositions(pos1[0], pos2[0]) && comparePositions(pos1[1], pos2[1])
+      );
+    };
+  })();
+
+  const checkForOverlaps = () => {
+    if (overlaps(marker.current, butterfly.current) && !butterflyFound) {
+      setButterflyFound(true);
+      // butterfly.current.style.border = "3px solid black";
+    } else if (overlaps(marker.current, cane.current) && !caneFound) {
+      setCaneFound(true);
+    } else if (overlaps(marker.current, cat.current) && !catFound) {
+      setCatFound(true);
+    } else if (overlaps(marker.current, mars.current) && !marsFound) {
+      setMarsFound(true);
+    } else if (
+      overlaps(marker.current, pipeWrench.current) &&
+      !pipeWrenchFound
+    ) {
+      setPipeWrenchFound(true);
+    }
+  };
 
   const placeItemMarker = (e) => {
     const rect = e.target.getBoundingClientRect();
-    setMarkerPosition({
+    const newPosition = {
       cordX: e.clientX - rect.left - 15,
       cordY: e.clientY - rect.top - 15,
-    });
+    };
+    if (
+      markerPosition.cordX !== newPosition.cordX ||
+      markerPosition.cordY !== newPosition.cordY
+    ) {
+      setMarkerPosition(newPosition);
+    }
     if (markerVisibility !== "visible") {
       setMarkerVisibility("visible");
     }
@@ -101,13 +158,17 @@ export default function Gameboard() {
       setMarkerVisibility("hidden");
     }
   };
+  // console.log(cat.current.style.border);
 
   return (
     <Paper elevation={3} className={classes.gameContainer}>
       <ClickAwayListener onClickAway={handleClickAway}>
         <img
           className={classes.gameImage}
-          onClick={placeItemMarker}
+          onClick={(e) => {
+            placeItemMarker(e);
+            checkForOverlaps();
+          }}
           alt="game scene"
           src={image}
           onMouseDown={(e) => {
@@ -122,26 +183,31 @@ export default function Gameboard() {
         id="butterfly"
       ></Item>
       <Item
+        ref={cane}
         className={classes.cane}
         style={{ border: caneFound ? found : hidden }}
         id="cane"
       ></Item>
       <Item
+        ref={cat}
         className={classes.cat}
         style={{ border: catFound ? found : hidden }}
         id="cat"
       ></Item>
       <Item
+        ref={mars}
         className={classes.mars}
         style={{ border: marsFound ? found : hidden }}
         id="mars"
       ></Item>
       <Item
+        ref={pipeWrench}
         className={classes.pipeWrench}
         style={{ border: pipeWrenchFound ? found : hidden }}
         id="pipe wrench"
       ></Item>
       <div
+        ref={marker}
         className={classes.marker}
         style={{
           left: markerPosition.cordX,
