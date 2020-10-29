@@ -1,7 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
-import { Paper, Box, ClickAwayListener } from "@material-ui/core";
+import {
+  Paper,
+  Box,
+  ClickAwayListener,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Select,
+} from "@material-ui/core";
 import { styled } from "@material-ui/core/styles";
 
 let Item = styled(Box)({
@@ -71,6 +79,16 @@ const useStyles = makeStyles((theme) => ({
     visibility: "visible",
     pointerEvents: "none",
   },
+  formControl: {
+    position: "absolute",
+    top: 50,
+    left: 50,
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 export default function Gameboard() {
@@ -84,12 +102,14 @@ export default function Gameboard() {
   const [catFound, setCatFound] = useState(false);
   const [marsFound, setMarsFound] = useState(false);
   const [pipeWrenchFound, setPipeWrenchFound] = useState(false);
+  const [itemSelection, setItemSelection] = useState("butterfly");
   const butterfly = useRef();
   const cane = useRef();
   const cat = useRef();
   const mars = useRef();
   const pipeWrench = useRef();
   const marker = useRef();
+
   const overlaps = (function () {
     function getPositions(elem) {
       var width = parseFloat(
@@ -143,16 +163,33 @@ export default function Gameboard() {
   };
 
   const checkForOverlaps = useCallback(() => {
-    if (overlaps(marker.current, butterfly.current) && !butterflyFound) {
+    if (
+      overlaps(marker.current, butterfly.current) &&
+      itemSelection === butterfly.current.id &&
+      !butterflyFound
+    ) {
       setButterflyFound(true);
-    } else if (overlaps(marker.current, cane.current) && !caneFound) {
+    } else if (
+      overlaps(marker.current, cane.current) &&
+      itemSelection === cane.current.id &&
+      !caneFound
+    ) {
       setCaneFound(true);
-    } else if (overlaps(marker.current, cat.current) && !catFound) {
+    } else if (
+      overlaps(marker.current, cat.current) &&
+      itemSelection === cat.current.id &&
+      !catFound
+    ) {
       setCatFound(true);
-    } else if (overlaps(marker.current, mars.current) && !marsFound) {
+    } else if (
+      overlaps(marker.current, mars.current) &&
+      itemSelection === mars.current.id &&
+      !marsFound
+    ) {
       setMarsFound(true);
     } else if (
       overlaps(marker.current, pipeWrench.current) &&
+      itemSelection === pipeWrench.current.id &&
       !pipeWrenchFound
     ) {
       setPipeWrenchFound(true);
@@ -163,6 +200,7 @@ export default function Gameboard() {
     caneFound,
     marsFound,
     pipeWrenchFound,
+    itemSelection,
     overlaps,
   ]);
 
@@ -170,18 +208,20 @@ export default function Gameboard() {
     checkForOverlaps();
   }, [markerPosition, checkForOverlaps]);
 
+  const handleSelectorChange = (e) => {
+    setItemSelection(e.target.value);
+  };
+
   return (
     <Paper elevation={3} className={classes.gameContainer}>
       <ClickAwayListener onClickAway={handleClickAway}>
         <img
           className={classes.gameImage}
-          onClick={(e) => {
-            placeItemMarker(e);
-          }}
           alt="game scene"
           src={image}
           onMouseDown={(e) => {
             e.preventDefault();
+            placeItemMarker(e);
           }}
         />
       </ClickAwayListener>
@@ -215,7 +255,7 @@ export default function Gameboard() {
         style={{ border: pipeWrenchFound ? found : hidden }}
         id="pipe wrench"
       ></Item>
-      <div
+      <Box
         ref={marker}
         className={classes.marker}
         style={{
@@ -224,7 +264,21 @@ export default function Gameboard() {
           visibility: markerVisibility,
         }}
         id="marker"
-      ></div>
+      ></Box>
+      <FormControl className={classes.formControl}>
+        <Select
+          id="item selector"
+          value={itemSelection}
+          onChange={handleSelectorChange}
+          className={classes.selectEmpty}
+        >
+          <MenuItem value={"butterfly"}>Butterfly</MenuItem>
+          <MenuItem value={"cane"}>Cane</MenuItem>
+          <MenuItem value={"cat"}>Cat</MenuItem>
+          <MenuItem value={"mars"}>Mars</MenuItem>
+          <MenuItem value={"pipe wrench"}>Pipe Wrench</MenuItem>
+        </Select>
+      </FormControl>
     </Paper>
   );
 }
