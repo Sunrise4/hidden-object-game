@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper, Box, ClickAwayListener } from "@material-ui/core";
@@ -29,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
     left: 345,
     height: 55,
     width: 56,
+    position: "absolute",
+    pointerEvents: "none",
   },
   cane: {
     top: 275,
@@ -72,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Gameboard() {
-  const [test, setTest] = useState("3px solid purple");
   const found = "3px solid red";
   const hidden = "3px solid blue";
   const classes = useStyles();
@@ -118,24 +119,6 @@ export default function Gameboard() {
     };
   })();
 
-  const checkForOverlaps = () => {
-    if (overlaps(marker.current, butterfly.current) && !butterflyFound) {
-      setButterflyFound(true);
-      // butterfly.current.style.border = "3px solid black";
-    } else if (overlaps(marker.current, cane.current) && !caneFound) {
-      setCaneFound(true);
-    } else if (overlaps(marker.current, cat.current) && !catFound) {
-      setCatFound(true);
-    } else if (overlaps(marker.current, mars.current) && !marsFound) {
-      setMarsFound(true);
-    } else if (
-      overlaps(marker.current, pipeWrench.current) &&
-      !pipeWrenchFound
-    ) {
-      setPipeWrenchFound(true);
-    }
-  };
-
   const placeItemMarker = (e) => {
     const rect = e.target.getBoundingClientRect();
     const newPosition = {
@@ -158,7 +141,34 @@ export default function Gameboard() {
       setMarkerVisibility("hidden");
     }
   };
-  // console.log(cat.current.style.border);
+
+  const checkForOverlaps = useCallback(() => {
+    if (overlaps(marker.current, butterfly.current) && !butterflyFound) {
+      setButterflyFound(true);
+    } else if (overlaps(marker.current, cane.current) && !caneFound) {
+      setCaneFound(true);
+    } else if (overlaps(marker.current, cat.current) && !catFound) {
+      setCatFound(true);
+    } else if (overlaps(marker.current, mars.current) && !marsFound) {
+      setMarsFound(true);
+    } else if (
+      overlaps(marker.current, pipeWrench.current) &&
+      !pipeWrenchFound
+    ) {
+      setPipeWrenchFound(true);
+    }
+  }, [
+    butterflyFound,
+    catFound,
+    caneFound,
+    marsFound,
+    pipeWrenchFound,
+    overlaps,
+  ]);
+
+  useEffect(() => {
+    checkForOverlaps();
+  }, [markerPosition, checkForOverlaps]);
 
   return (
     <Paper elevation={3} className={classes.gameContainer}>
@@ -167,7 +177,6 @@ export default function Gameboard() {
           className={classes.gameImage}
           onClick={(e) => {
             placeItemMarker(e);
-            checkForOverlaps();
           }}
           alt="game scene"
           src={image}
