@@ -7,8 +7,8 @@ import {
   ClickAwayListener,
   FormControl,
   MenuItem,
-  InputLabel,
   Select,
+  Button,
 } from "@material-ui/core";
 import { styled } from "@material-ui/core/styles";
 
@@ -24,6 +24,17 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     border: `3px solid ${theme.palette.primary.light}`,
     overflow: "hidden",
+  },
+  button: {
+    height: 60,
+    width: 120,
+    fontSize: 32,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    margin: "auto",
   },
   gameImage: {
     display: "block",
@@ -83,20 +94,22 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: 50,
     left: 50,
-    margin: theme.spacing(1),
     minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
+    background: "rgba(255,255,255,.9)",
   },
 }));
 
 export default function Gameboard() {
-  const found = "3px solid red";
-  const hidden = "3px solid blue";
+  const found = "3px solid green";
+  const hidden = "none";
   const classes = useStyles();
+  const [started, setStarted] = useState(false);
   const [markerPosition, setMarkerPosition] = useState({ cordX: 0, cordY: 0 });
-  const [markerVisibility, setMarkerVisibility] = useState("visible");
+  const [markerVisibility, setMarkerVisibility] = useState("hidden");
+  const [itemSelectPosition, setItemSelectPosition] = useState({
+    cordX: 0,
+    cordY: 0,
+  });
   const [butterflyFound, setButterflyFound] = useState(false);
   const [caneFound, setCaneFound] = useState(false);
   const [catFound, setCatFound] = useState(false);
@@ -203,6 +216,12 @@ export default function Gameboard() {
     itemSelection,
     overlaps,
   ]);
+  useEffect(() => {
+    setItemSelectPosition({
+      cordX: markerPosition.cordX,
+      cordY: markerPosition.cordY + 40,
+    });
+  }, [markerPosition]);
 
   useEffect(() => {
     checkForOverlaps();
@@ -212,73 +231,93 @@ export default function Gameboard() {
     setItemSelection(e.target.value);
   };
 
+  const startGame = () => {
+    setStarted(true);
+  };
+
   return (
     <Paper elevation={3} className={classes.gameContainer}>
-      <ClickAwayListener onClickAway={handleClickAway}>
-        <img
-          className={classes.gameImage}
-          alt="game scene"
-          src={image}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            placeItemMarker(e);
+      <div style={{ visibility: started ? "visible" : "hidden" }}>
+        <ClickAwayListener onClickAway={handleClickAway}>
+          <img
+            className={classes.gameImage}
+            alt="game scene"
+            src={image}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              placeItemMarker(e);
+            }}
+          />
+        </ClickAwayListener>
+        <Item
+          ref={butterfly}
+          className={classes.butterfly}
+          style={{ border: butterflyFound ? found : hidden }}
+          id="butterfly"
+        ></Item>
+        <Item
+          ref={cane}
+          className={classes.cane}
+          style={{ border: caneFound ? found : hidden }}
+          id="cane"
+        ></Item>
+        <Item
+          ref={cat}
+          className={classes.cat}
+          style={{ border: catFound ? found : hidden }}
+          id="cat"
+        ></Item>
+        <Item
+          ref={mars}
+          className={classes.mars}
+          style={{ border: marsFound ? found : hidden }}
+          id="mars"
+        ></Item>
+        <Item
+          ref={pipeWrench}
+          className={classes.pipeWrench}
+          style={{ border: pipeWrenchFound ? found : hidden }}
+          id="pipe wrench"
+        ></Item>
+        <Box
+          ref={marker}
+          className={classes.marker}
+          style={{
+            left: markerPosition.cordX,
+            top: markerPosition.cordY,
+            visibility: markerVisibility,
           }}
-        />
-      </ClickAwayListener>
-      <Item
-        ref={butterfly}
-        className={classes.butterfly}
-        style={{ border: butterflyFound ? found : hidden }}
-        id="butterfly"
-      ></Item>
-      <Item
-        ref={cane}
-        className={classes.cane}
-        style={{ border: caneFound ? found : hidden }}
-        id="cane"
-      ></Item>
-      <Item
-        ref={cat}
-        className={classes.cat}
-        style={{ border: catFound ? found : hidden }}
-        id="cat"
-      ></Item>
-      <Item
-        ref={mars}
-        className={classes.mars}
-        style={{ border: marsFound ? found : hidden }}
-        id="mars"
-      ></Item>
-      <Item
-        ref={pipeWrench}
-        className={classes.pipeWrench}
-        style={{ border: pipeWrenchFound ? found : hidden }}
-        id="pipe wrench"
-      ></Item>
-      <Box
-        ref={marker}
-        className={classes.marker}
-        style={{
-          left: markerPosition.cordX,
-          top: markerPosition.cordY,
-          visibility: markerVisibility,
-        }}
-        id="marker"
-      ></Box>
-      <FormControl className={classes.formControl}>
-        <Select
-          id="item selector"
-          value={itemSelection}
-          onChange={handleSelectorChange}
-          className={classes.selectEmpty}
+          id="marker"
+        ></Box>
+        <FormControl
+          className={classes.formControl}
+          style={{
+            left: itemSelectPosition.cordX,
+            top: itemSelectPosition.cordY,
+            visibility: markerVisibility,
+          }}
         >
-          <MenuItem value={"butterfly"}>Butterfly</MenuItem>
-          <MenuItem value={"cane"}>Cane</MenuItem>
-          <MenuItem value={"cat"}>Cat</MenuItem>
-          <MenuItem value={"mars"}>Mars</MenuItem>
-          <MenuItem value={"pipe wrench"}>Pipe Wrench</MenuItem>
-        </Select>
-      </FormControl>
+          <Select
+            id="item selector"
+            value={itemSelection}
+            onChange={handleSelectorChange}
+          >
+            <MenuItem value={"butterfly"}>Butterfly</MenuItem>
+            <MenuItem value={"cane"}>Cane</MenuItem>
+            <MenuItem value={"cat"}>Cat</MenuItem>
+            <MenuItem value={"mars"}>Mars</MenuItem>
+            <MenuItem value={"pipe wrench"}>Pipe Wrench</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <Button
+        variant="contained"
+        className={classes.button}
+        style={{ visibility: started ? "hidden" : "visible" }}
+        onClick={startGame}
+      >
+        START
+      </Button>
     </Paper>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { itemList } from "../constants/itemList";
 import {
   Box,
@@ -9,7 +9,7 @@ import {
   ListItemIcon,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core";
-import { CheckCircleIcon } from "@material-ui/icons";
+// import { CheckCircleIcon } from "@material-ui/icons";
 import HelpIcon from "@material-ui/icons/Help";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,9 +39,21 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Sidebar() {
   const classes = useStyles();
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime((time) => time + 1);
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <Paper elevation={3} className={classes.container}>
-      <Paper className={classes.timer}>Time: 0:00</Paper>
+      <Paper className={classes.timer}>Time: {time}</Paper>
       <Box>
         <List>
           {itemList.map((item, index) => (
