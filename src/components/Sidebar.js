@@ -37,19 +37,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Sidebar() {
+export default function Sidebar(props) {
   const classes = useStyles();
   const [time, setTime] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime((time) => time + 1);
-    }, 1000);
+    if (props.started) {
+      const interval = setInterval(() => {
+        setTime((time) => time + 1);
+      }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [props.started]);
 
   return (
     <Paper elevation={3} className={classes.container}>

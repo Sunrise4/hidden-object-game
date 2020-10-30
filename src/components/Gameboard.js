@@ -99,22 +99,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Gameboard() {
+export default function Gameboard(props) {
   const found = "3px solid green";
   const hidden = "none";
   const classes = useStyles();
-  const [started, setStarted] = useState(false);
   const [markerPosition, setMarkerPosition] = useState({ cordX: 0, cordY: 0 });
   const [markerVisibility, setMarkerVisibility] = useState("hidden");
   const [itemSelectPosition, setItemSelectPosition] = useState({
     cordX: 0,
     cordY: 0,
   });
-  const [butterflyFound, setButterflyFound] = useState(false);
-  const [caneFound, setCaneFound] = useState(false);
-  const [catFound, setCatFound] = useState(false);
-  const [marsFound, setMarsFound] = useState(false);
-  const [pipeWrenchFound, setPipeWrenchFound] = useState(false);
   const [itemSelection, setItemSelection] = useState("butterfly");
   const butterfly = useRef();
   const cane = useRef();
@@ -179,43 +173,35 @@ export default function Gameboard() {
     if (
       overlaps(marker.current, butterfly.current) &&
       itemSelection === butterfly.current.id &&
-      !butterflyFound
+      !props.foundItems.includes("butterfly")
     ) {
-      setButterflyFound(true);
+      props.onItemFound("butterfly");
     } else if (
       overlaps(marker.current, cane.current) &&
       itemSelection === cane.current.id &&
-      !caneFound
+      !props.foundItems.includes("cane")
     ) {
-      setCaneFound(true);
+      props.onItemFound("cane");
     } else if (
       overlaps(marker.current, cat.current) &&
       itemSelection === cat.current.id &&
-      !catFound
+      !props.foundItems.includes("cat")
     ) {
-      setCatFound(true);
+      props.onItemFound("cat");
     } else if (
       overlaps(marker.current, mars.current) &&
       itemSelection === mars.current.id &&
-      !marsFound
+      !props.foundItems.includes("mars")
     ) {
-      setMarsFound(true);
+      props.onItemFound("mars");
     } else if (
       overlaps(marker.current, pipeWrench.current) &&
       itemSelection === pipeWrench.current.id &&
-      !pipeWrenchFound
+      !props.foundItems.includes("pipe wrench")
     ) {
-      setPipeWrenchFound(true);
+      props.onItemFound("pipe wrench");
     }
-  }, [
-    butterflyFound,
-    catFound,
-    caneFound,
-    marsFound,
-    pipeWrenchFound,
-    itemSelection,
-    overlaps,
-  ]);
+  }, [itemSelection, overlaps, props]);
   useEffect(() => {
     setItemSelectPosition({
       cordX: markerPosition.cordX,
@@ -231,13 +217,9 @@ export default function Gameboard() {
     setItemSelection(e.target.value);
   };
 
-  const startGame = () => {
-    setStarted(true);
-  };
-
   return (
     <Paper elevation={3} className={classes.gameContainer}>
-      <div style={{ visibility: started ? "visible" : "hidden" }}>
+      <div style={{ visibility: props.started ? "visible" : "hidden" }}>
         <ClickAwayListener onClickAway={handleClickAway}>
           <img
             className={classes.gameImage}
@@ -252,31 +234,35 @@ export default function Gameboard() {
         <Item
           ref={butterfly}
           className={classes.butterfly}
-          style={{ border: butterflyFound ? found : hidden }}
+          style={{
+            border: props.foundItems.includes("butterfly") ? found : hidden,
+          }}
           id="butterfly"
         ></Item>
         <Item
           ref={cane}
           className={classes.cane}
-          style={{ border: caneFound ? found : hidden }}
+          style={{ border: props.foundItems.includes("cane") ? found : hidden }}
           id="cane"
         ></Item>
         <Item
           ref={cat}
           className={classes.cat}
-          style={{ border: catFound ? found : hidden }}
+          style={{ border: props.foundItems.includes("cat") ? found : hidden }}
           id="cat"
         ></Item>
         <Item
           ref={mars}
           className={classes.mars}
-          style={{ border: marsFound ? found : hidden }}
+          style={{ border: props.foundItems.includes("mars") ? found : hidden }}
           id="mars"
         ></Item>
         <Item
           ref={pipeWrench}
           className={classes.pipeWrench}
-          style={{ border: pipeWrenchFound ? found : hidden }}
+          style={{
+            border: props.foundItems.includes("pipe wrench") ? found : hidden,
+          }}
           id="pipe wrench"
         ></Item>
         <Box
@@ -313,8 +299,8 @@ export default function Gameboard() {
       <Button
         variant="contained"
         className={classes.button}
-        style={{ visibility: started ? "hidden" : "visible" }}
-        onClick={startGame}
+        style={{ visibility: props.started ? "hidden" : "visible" }}
+        onClick={props.onGameStart}
       >
         START
       </Button>
