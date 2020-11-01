@@ -1,7 +1,7 @@
 export const itemList = [
-  "Butterfly",
-  "Cane",
-  "Cat",
-  "Mars",
-  "Pipe Wrench",
+  "butterfly",
+  "cane",
+  "cat",
+  "mars",
+  "pipe wrench",
 ].sort();

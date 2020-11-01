@@ -35,7 +35,7 @@ function App() {
         started={started}
         onGameStart={onGameStart}
       />
-      <Sidebar started={started} />
+      <Sidebar foundItems={foundItems} started={started} />
     </div>
   );
 }

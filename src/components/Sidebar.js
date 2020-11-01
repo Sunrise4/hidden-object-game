@@ -9,7 +9,7 @@ import {
   ListItemIcon,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core";
-// import { CheckCircleIcon } from "@material-ui/icons";
+import CheckCircle from "@material-ui/icons/CheckCircle";
 import HelpIcon from "@material-ui/icons/Help";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,9 +31,12 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.primary.light,
     fontSize: 24,
   },
-  itemList: {
-    color: theme.palette.text.secondary,
-    fontSize: 24,
+  listItemText: {
+    // color: theme.palette.text.secondary,
+    fontSize: 28,
+  },
+  checkCircle: {
+    color: theme.palette.primary.main,
   },
 }));
 
@@ -59,11 +62,26 @@ export default function Sidebar(props) {
       <Box>
         <List>
           {itemList.map((item, index) => (
-            <ListItem className={classes.itemList} key={index}>
+            <ListItem
+              // className={classes.itemList}
+              // style={{ fill: "green" }}
+              key={index}
+            >
               <ListItemIcon>
-                <HelpIcon />
+                {props.foundItems.includes(item) ? (
+                  <CheckCircle className={classes.checkCircle} />
+                ) : (
+                  <HelpIcon />
+                )}
               </ListItemIcon>
-              <ListItemText disableTypography primary={item} />
+              <ListItemText
+                classes={{ primary: classes.listItemText }}
+                style={{
+                  color: props.foundItems.includes(item) ? "darkblue" : "#222",
+                }}
+                color="primary"
+                primary={item.charAt(0).toUpperCase() + item.slice(1)}
+              />
             </ListItem>
           ))}
         </List>
