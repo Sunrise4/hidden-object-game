@@ -19,6 +19,7 @@ function App() {
   const [foundItems, setFoundItems] = useState([]);
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [time, setTime] = useState(0);
 
   const onItemFound = (value) => {
     setFoundItems([...foundItems, value]);
@@ -31,6 +32,10 @@ function App() {
   const onGameFinish = () => {
     setFinished(true);
   };
+
+  const newTime = (val) => {
+    setTime((val) => val + 1);
+  };
   return (
     <div className={classes.root}>
       <Gameboard
@@ -40,8 +45,15 @@ function App() {
         onGameStart={onGameStart}
         onGameFinish={onGameFinish}
         finished={finished}
+        time={time}
       />
-      <Sidebar finished={finished} foundItems={foundItems} started={started} />
+      <Sidebar
+        finished={finished}
+        foundItems={foundItems}
+        started={started}
+        newTime={newTime}
+        time={time}
+      />
     </div>
   );
 }

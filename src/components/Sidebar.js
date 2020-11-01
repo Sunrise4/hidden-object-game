@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 24,
   },
   listItemText: {
-    // color: theme.palette.text.secondary,
     fontSize: 28,
   },
   checkCircle: {
@@ -42,14 +41,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Sidebar(props) {
   const classes = useStyles();
-  const [time, setTime] = useState(0);
+  // const [time, setTime] = useState(0);
   const interval = useRef(null);
-
+  let started = props.started;
   useEffect(() => {
     console.log("test");
     if (props.started) {
       interval.current = setInterval(() => {
-        setTime((time) => time + 1);
+        props.newTime(props.time);
       }, 1000);
 
       return () => {
@@ -66,15 +65,11 @@ export default function Sidebar(props) {
 
   return (
     <Paper elevation={3} className={classes.container}>
-      <Paper className={classes.timer}>Time: {time}</Paper>
+      <Paper className={classes.timer}>Time: {props.time}</Paper>
       <Box>
         <List>
           {itemList.map((item, index) => (
-            <ListItem
-              // className={classes.itemList}
-              // style={{ fill: "green" }}
-              key={index}
-            >
+            <ListItem key={index}>
               <ListItemIcon>
                 {props.foundItems.includes(item) ? (
                   <CheckCircle className={classes.checkCircle} />

@@ -13,6 +13,8 @@ import {
   List,
   ListItem,
   ListItemText,
+  Grow,
+  Input,
 } from "@material-ui/core";
 import { styled } from "@material-ui/core/styles";
 
@@ -117,6 +119,28 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     bottom: 0,
   },
+  highScoreContainer: {
+    position: "absolute",
+    height: 200,
+    width: 200,
+    margin: "auto",
+    padding: 10,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  highScoreInput: {
+    // margin: "auto",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    "&& Button": {
+      border: theme.palette.primary.main,
+    },
+  },
 }));
 
 export default function Gameboard(props) {
@@ -136,7 +160,8 @@ export default function Gameboard(props) {
   const mars = useRef();
   const pipeWrench = useRef();
   const marker = useRef();
-  const [highScoreList, sethighScoreList] = useState([
+  const [submitted, setSubmitted] = useState(false);
+  const [highScoreList, setHighScoreList] = useState([
     { nickname: "test", time: "235" },
   ]);
 
@@ -240,6 +265,10 @@ export default function Gameboard(props) {
     setItemSelection(e.target.value);
   };
 
+  useEffect(() => {
+    highScoreList.sort((a, b) => (a.time > b.time ? 1 : -1));
+  }, [highScoreList]);
+
   const scoreboard = (
     <Box
       className={classes.scoreboard}
@@ -265,9 +294,25 @@ export default function Gameboard(props) {
     }
   });
 
+  const checkHighscore =
+    props.finished &&
+    (highScoreList.length < 5 || props.time < highScoreList[4].time);
+  // if (props.finished) {
+  //   if (highScoreList.length < 5){
+  //     setHighScoreList([...highScoreList, ])
+  //   } (props.time < highScoreList[4].time) {
+
+  // }
+  // retur
+
+  const submitHighScore = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+  console.log(checkHighscore);
   return (
     <Paper elevation={3} className={classes.gameContainer}>
-      <div style={{ visibility: props.started ? "visible" : "hidden" }}>
+      <Box style={{ visibility: props.started ? "visible" : "hidden" }}>
         <ClickAwayListener onClickAway={handleClickAway}>
           <img
             className={classes.gameImage}
@@ -343,7 +388,7 @@ export default function Gameboard(props) {
             <MenuItem value={"pipe wrench"}>Pipe Wrench</MenuItem>
           </Select>
         </FormControl>
-      </div>
+      </Box>
       <Button
         variant="contained"
         className={classes.button}
@@ -352,7 +397,20 @@ export default function Gameboard(props) {
       >
         START
       </Button>
-      {scoreboard}
+      <Grow in={checkHighscore && !submitted}>
+        <Paper elevation={3} className={classes.highScoreContainer}>
+          <form className={classes.highScoreInput} onSubmit={submitHighScore}>
+            <Box>New Highscore!</Box>
+            <Box color="primary">Time: {props.time} seconds</Box>
+            <Input placeholder="Nickname" required />
+            <Button variant="contained" type="submit">
+              Submit
+            </Button>
+          </form>
+        </Paper>
+      </Grow>
+      {scoreboard && submitted}
+      {/* <Highscore /> */}
     </Paper>
   );
 }
