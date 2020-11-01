@@ -41,7 +41,7 @@ function App() {
         onGameFinish={onGameFinish}
         finished={finished}
       />
-      <Sidebar foundItems={foundItems} started={started} />
+      <Sidebar finished={finished} foundItems={foundItems} started={started} />
     </div>
   );
 }

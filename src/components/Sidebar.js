@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { itemList } from "../constants/itemList";
 import {
   Box,
@@ -43,18 +43,26 @@ const useStyles = makeStyles((theme) => ({
 export default function Sidebar(props) {
   const classes = useStyles();
   const [time, setTime] = useState(0);
+  const interval = useRef(null);
 
   useEffect(() => {
+    console.log("test");
     if (props.started) {
-      const interval = setInterval(() => {
+      interval.current = setInterval(() => {
         setTime((time) => time + 1);
       }, 1000);
 
       return () => {
-        clearInterval(interval);
+        clearInterval(interval.current);
       };
     }
   }, [props.started]);
+
+  useEffect(() => {
+    if (props.finished) {
+      clearInterval(interval.current);
+    }
+  }, [props.finished]);
 
   return (
     <Paper elevation={3} className={classes.container}>
