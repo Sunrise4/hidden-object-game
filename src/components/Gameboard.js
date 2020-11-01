@@ -265,9 +265,9 @@ export default function Gameboard(props) {
     setItemSelection(e.target.value);
   };
 
-  useEffect(() => {
-    highScoreList.sort((a, b) => (a.time > b.time ? 1 : -1));
-  }, [highScoreList]);
+  const sortHighscores = (highscores) => {
+    highscores.sort((a, b) => (a.time > b.time ? 1 : -1));
+  };
 
   const scoreboard = (
     <Box
@@ -276,10 +276,10 @@ export default function Gameboard(props) {
     >
       <Box>Highscores:</Box>
       <List>
-        {highScoreList.map((entry) => (
-          <ListItem>
+        {highScoreList.map((entry, index) => (
+          <ListItem key={index}>
             <ListItemText
-              primary={`${entry.nickname} : ${entry.time}`}
+              primary={`${entry.nickname}: ${entry.time} seconds`}
             ></ListItemText>
           </ListItem>
         ))}
@@ -288,7 +288,6 @@ export default function Gameboard(props) {
   );
 
   useEffect(() => {
-    console.log(props.foundItems.length, itemList.length);
     if (props.foundItems.length === itemList.length) {
       props.onGameFinish();
     }
@@ -297,19 +296,18 @@ export default function Gameboard(props) {
   const checkHighscore =
     props.finished &&
     (highScoreList.length < 5 || props.time < highScoreList[4].time);
-  // if (props.finished) {
-  //   if (highScoreList.length < 5){
-  //     setHighScoreList([...highScoreList, ])
-  //   } (props.time < highScoreList[4].time) {
-
-  // }
-  // retur
 
   const submitHighScore = (e) => {
     e.preventDefault();
     setSubmitted(true);
+    const newList = highScoreList;
+    if (newList[4]) {
+      newList.pop();
+    }
+    newList.push({ nickname: e.target.nickname.value, time: props.time });
+    sortHighscores(newList);
+    setHighScoreList(newList);
   };
-  console.log(checkHighscore);
   return (
     <Paper elevation={3} className={classes.gameContainer}>
       <Box style={{ visibility: props.started ? "visible" : "hidden" }}>
@@ -402,15 +400,21 @@ export default function Gameboard(props) {
           <form className={classes.highScoreInput} onSubmit={submitHighScore}>
             <Box>New Highscore!</Box>
             <Box color="primary">Time: {props.time} seconds</Box>
-            <Input placeholder="Nickname" required />
+            <Input
+              inputProps={{
+                maxLength: 16,
+              }}
+              name="nickname"
+              placeholder="Nickname"
+              required
+            />
             <Button variant="contained" type="submit">
               Submit
             </Button>
           </form>
         </Paper>
       </Grow>
-      {scoreboard && submitted}
-      {/* <Highscore /> */}
+      {submitted && scoreboard}
     </Paper>
   );
 }

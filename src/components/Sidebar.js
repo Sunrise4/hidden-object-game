@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { itemList } from "../constants/itemList";
 import {
   Box,
@@ -41,21 +41,20 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Sidebar(props) {
   const classes = useStyles();
-  // const [time, setTime] = useState(0);
   const interval = useRef(null);
-  let started = props.started;
+  const { started, newTime, time } = props;
+
   useEffect(() => {
-    console.log("test");
-    if (props.started) {
+    if (started) {
       interval.current = setInterval(() => {
-        props.newTime(props.time);
+        newTime(time);
       }, 1000);
 
       return () => {
         clearInterval(interval.current);
       };
     }
-  }, [props.started]);
+  }, [started, newTime, time]);
 
   useEffect(() => {
     if (props.finished) {
