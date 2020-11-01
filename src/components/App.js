@@ -18,6 +18,7 @@ function App() {
   const classes = useStyles();
   const [foundItems, setFoundItems] = useState([]);
   const [started, setStarted] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const onItemFound = (value) => {
     setFoundItems([...foundItems, value]);
@@ -27,6 +28,9 @@ function App() {
     setStarted(true);
   };
 
+  const onGameFinish = () => {
+    setFinished(true);
+  };
   return (
     <div className={classes.root}>
       <Gameboard
@@ -34,6 +38,8 @@ function App() {
         onItemFound={onItemFound}
         started={started}
         onGameStart={onGameStart}
+        onGameFinish={onGameFinish}
+        finished={finished}
       />
       <Sidebar foundItems={foundItems} started={started} />
     </div>

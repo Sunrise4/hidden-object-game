@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { itemList } from "../constants/itemList";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -9,6 +10,9 @@ import {
   MenuItem,
   Select,
   Button,
+  List,
+  ListItem,
+  ListItemText,
 } from "@material-ui/core";
 import { styled } from "@material-ui/core/styles";
 
@@ -97,6 +101,22 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 120,
     background: "rgba(255,255,255,.9)",
   },
+  scoreboard: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    background: theme.palette.primary.light,
+    padding: 20,
+    margin: "auto",
+    height: 600,
+    width: 400,
+    fontSize: 32,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 }));
 
 export default function Gameboard(props) {
@@ -116,6 +136,9 @@ export default function Gameboard(props) {
   const mars = useRef();
   const pipeWrench = useRef();
   const marker = useRef();
+  const [highScoreList, sethighScoreList] = useState([
+    { nickname: "test", time: "235" },
+  ]);
 
   const overlaps = (function () {
     function getPositions(elem) {
@@ -217,6 +240,31 @@ export default function Gameboard(props) {
     setItemSelection(e.target.value);
   };
 
+  const scoreboard = (
+    <Box
+      className={classes.scoreboard}
+      style={{ visibility: props.finished ? "visible" : "hidden" }}
+    >
+      <Box>Highscores:</Box>
+      <List>
+        {highScoreList.map((entry) => (
+          <ListItem>
+            <ListItemText
+              primary={`${entry.nickname} : ${entry.time}`}
+            ></ListItemText>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
+  useEffect(() => {
+    console.log(props.foundItems.length, itemList.length);
+    if (props.foundItems.length === itemList.length) {
+      props.onGameFinish();
+    }
+  });
+
   return (
     <Paper elevation={3} className={classes.gameContainer}>
       <div style={{ visibility: props.started ? "visible" : "hidden" }}>
@@ -304,6 +352,7 @@ export default function Gameboard(props) {
       >
         START
       </Button>
+      {scoreboard}
     </Paper>
   );
 }
