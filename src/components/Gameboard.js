@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import firebase from "../config/firebase";
 import { itemList } from "../constants/itemList";
 import image from "../assets/gameScene.png";
 import { makeStyles } from "@material-ui/core/styles";
@@ -43,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
     margin: "auto",
   },
   gameImage: {
+    position: "relative",
     display: "block",
     userSelect: "none",
     MozUserSelect: "none",
@@ -131,7 +133,6 @@ const useStyles = makeStyles((theme) => ({
     bottom: 0,
   },
   highScoreInput: {
-    // margin: "auto",
     height: "100%",
     display: "flex",
     flexDirection: "column",
@@ -161,9 +162,7 @@ export default function Gameboard(props) {
   const pipeWrench = useRef();
   const marker = useRef();
   const [submitted, setSubmitted] = useState(false);
-  const [highScoreList, setHighScoreList] = useState([
-    { nickname: "test", time: "235" },
-  ]);
+  const [highScoreList, setHighScoreList] = useState([]);
 
   const overlaps = (function () {
     function getPositions(elem) {
@@ -265,16 +264,12 @@ export default function Gameboard(props) {
     setItemSelection(e.target.value);
   };
 
-  const sortHighscores = (highscores) => {
-    highscores.sort((a, b) => (a.time > b.time ? 1 : -1));
-  };
-
   const scoreboard = (
     <Box
       className={classes.scoreboard}
       style={{ visibility: props.finished ? "visible" : "hidden" }}
     >
-      <Box>Highscores:</Box>
+      <Box>Top 10 Highscores:</Box>
       <List>
         {highScoreList.map((entry, index) => (
           <ListItem key={index}>
@@ -293,20 +288,27 @@ export default function Gameboard(props) {
     }
   });
 
-  const checkHighscore =
-    props.finished &&
-    (highScoreList.length < 5 || props.time < highScoreList[4].time);
-
   const submitHighScore = (e) => {
     e.preventDefault();
+    firebase
+      .firestore()
+      .collection("highscores")
+      .add({ nickname: e.target.nickname.value, time: props.time });
+
+    firebase
+      .firestore()
+      .collection("highscores")
+      .orderBy("time")
+      .limit(10)
+      .get()
+      .then((col) => {
+        const tempList = [];
+        col.forEach((entry) => {
+          tempList.push(entry.data());
+        });
+        setHighScoreList(tempList);
+      });
     setSubmitted(true);
-    const newList = highScoreList;
-    if (newList[4]) {
-      newList.pop();
-    }
-    newList.push({ nickname: e.target.nickname.value, time: props.time });
-    sortHighscores(newList);
-    setHighScoreList(newList);
   };
   return (
     <Paper elevation={3} className={classes.gameContainer}>
@@ -395,10 +397,10 @@ export default function Gameboard(props) {
       >
         START
       </Button>
-      <Grow in={checkHighscore && !submitted}>
+      <Grow in={props.finished && !submitted}>
         <Paper elevation={3} className={classes.highScoreContainer}>
           <form className={classes.highScoreInput} onSubmit={submitHighScore}>
-            <Box>New Highscore!</Box>
+            <Box>Submit Score!</Box>
             <Box color="primary">Time: {props.time} seconds</Box>
             <Input
               inputProps={{
